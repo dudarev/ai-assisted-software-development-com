@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FRONTMATTER_BOUNDARY = re.compile(r"^---\s*$")
 TAG_DASH_LINE = re.compile(r"^\s*-\s*(.+?)\s*$")
 PUBLISH_LINE = re.compile(r"^\s*publish:\s*true\s*$", re.IGNORECASE)
+TITLE_LINE = re.compile(r"^(\s*)title\s*:\s*(.*?)\s*$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -166,6 +167,72 @@ def _transform_wikilinks(text: str) -> str:
     return re.sub(pattern, replace_wikilink, text)
 
 
+def _escape_yaml_double_quoted(text: str) -> str:
+    return text.replace("\\", "\\\\").replace('"', "\\\"")
+
+
+def _normalize_title_and_strip_leading_h1(text: str) -> str:
+    """If the first content line is an H1, promote it to front matter title and remove the H1.
+
+    PaperMod renders the front matter `title` as the page title. If the body also starts with
+    `# Title`, it results in a duplicated title. This normalizes exported pages without requiring
+    edits to the `content/` submodule.
+    """
+
+    lines = text.splitlines(keepends=True)
+    if not lines or not FRONTMATTER_BOUNDARY.match(lines[0].strip()):
+        return text
+
+    end_index = None
+    for idx in range(1, len(lines)):
+        if FRONTMATTER_BOUNDARY.match(lines[idx].strip()):
+            end_index = idx
+            break
+    if end_index is None:
+        return text
+
+    # Find first non-empty content line after front matter
+    content_idx = end_index + 1
+    first_non_empty = None
+    for idx in range(content_idx, len(lines)):
+        if lines[idx].strip() != "":
+            first_non_empty = idx
+            break
+    if first_non_empty is None:
+        return text
+
+    h1_line = lines[first_non_empty]
+    if not h1_line.startswith("# ") or h1_line.startswith("##"):
+        return text
+
+    title_text = h1_line[2:].strip()
+    if not title_text:
+        return text
+
+    # Remove the H1 line and a single following blank line (if present).
+    del lines[first_non_empty]
+    if first_non_empty < len(lines) and lines[first_non_empty].strip() == "":
+        del lines[first_non_empty]
+
+    # Replace or insert title in front matter.
+    escaped = _escape_yaml_double_quoted(title_text)
+    title_written = False
+    for idx in range(1, end_index):
+        m = TITLE_LINE.match(lines[idx].rstrip("\n"))
+        if m:
+            indent = m.group(1) or ""
+            newline = "\n" if lines[idx].endswith("\n") else ""
+            lines[idx] = f'{indent}title: "{escaped}"{newline}'
+            title_written = True
+            break
+
+    if not title_written:
+        lines.insert(1, f'title: "{escaped}"\n')
+        end_index += 1
+
+    return "".join(lines)
+
+
 def export_published(source_dir: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -197,6 +264,7 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
         
         # Transform the content: remove publish tag, fix .md links, and convert wikilinks
         transformed = _remove_publish_tag(raw)
+        transformed = _normalize_title_and_strip_leading_h1(transformed)
         transformed = _transform_md_links(transformed)
         transformed = _transform_wikilinks(transformed)
         

@@ -10,7 +10,7 @@ init: ## Initialize git submodules
 	git submodule update --init --recursive
 
 update: ## Update content submodule to latest main
-	cd content && git pull origin main && cd ..
+	cd content && git fetch origin main && git checkout main && git pull --ff-only origin main && cd ..
 
 export: ## Export published content from notes to site-content
 	python3 scripts/export_content.py

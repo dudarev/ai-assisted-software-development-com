@@ -32,6 +32,15 @@ When changing site setup:
 - treat `content/` and `themes/` as submodules
 - document any workflow changes in `README.md`
 
+### Important: do not edit the `content/` submodule here
+
+The `content/` folder is a git submodule pinned to a specific commit during builds.
+Local edits inside `content/` will cause `git submodule update` to fail and break `make build`.
+
+If you need to change published content:
+- make the change in the upstream knowledge-base repository (the submodule repo), or
+- adjust the export pipeline in `scripts/export_content.py` to transform content at export time.
+
 When maintaining the changelog (`CHANGELOG.md`):
 - follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
 - document notable changes, not every commit
