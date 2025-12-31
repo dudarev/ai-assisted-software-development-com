@@ -32,6 +32,15 @@ When changing site setup:
 - treat `content/` and `themes/` as submodules
 - document any workflow changes in `README.md`
 
+When maintaining the changelog (`CHANGELOG.md`):
+- follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
+- document notable changes, not every commit
+- use clear, human-readable language
+- group changes by type: Added, Changed, Deprecated, Removed, Fixed, Security
+- maintain an Unreleased section for upcoming changes
+- use ISO date format (YYYY-MM-DD) for release dates
+- record breaking changes explicitly
+
 ## Authority model
 
 This repository represents the author’s evolving intent for how the site is published.
