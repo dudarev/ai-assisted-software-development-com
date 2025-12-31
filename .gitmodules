@@ -4,3 +4,4 @@
 [submodule "content"]
 	path = content
 	url = https://github.com/dudarev/ai-assisted-software-development.git
+	branch = main
