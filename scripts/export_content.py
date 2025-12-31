@@ -177,8 +177,14 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
             continue
 
         # Convert filename to kebab-case for Hugo
-        filename_stem = path.stem  # e.g., "Four Modes of AI Assistance"
-        slugified_name = _slugify(filename_stem) + ".md"
+        # Hugo treats `index.md` as a leaf bundle. If we export an `index.md` into
+        # the content root, sibling pages won't be rendered as standalone pages.
+        # Use `_index.md` for the homepage to keep the root as a list bundle.
+        if rel.parent == Path(".") and path.name.lower() in {"index.md", "_index.md"}:
+            slugified_name = "_index.md"
+        else:
+            filename_stem = path.stem  # e.g., "Four Modes of AI Assistance"
+            slugified_name = _slugify(filename_stem) + ".md"
         
         # Reconstruct output path with slugified filename
         if rel.parent == Path("."):
