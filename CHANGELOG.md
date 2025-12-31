@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2025-12-31
+
+### Fixed
+- Disable automatic capitalization of list titles so tags like "AI agents" keep their casing.
+
+### Changed
+- Document that releases should be tagged when updating `CHANGELOG.md`.
+
 ## [0.1.2] - 2025-12-31
 
 ### Fixed
@@ -27,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGENTS.md guide for AI agent collaboration
 - CHANGELOG.md following Keep a Changelog format
 
-[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/dudarev/ai-assisted-software-development-com/releases/tag/v0.1.0

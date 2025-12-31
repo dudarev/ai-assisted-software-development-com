@@ -49,6 +49,7 @@ When maintaining the changelog (`CHANGELOG.md`):
 - maintain an Unreleased section for upcoming changes
 - use ISO date format (YYYY-MM-DD) for release dates
 - record breaking changes explicitly
+- when cutting a release in `CHANGELOG.md`, create and push a matching git tag (e.g. `v0.1.2`) so the compare links at the bottom of the changelog resolve correctly
 
 ## Authority model
 
