@@ -1,0 +1,4 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'AI-Assisted Software Development'
+theme = 'PaperMod'
