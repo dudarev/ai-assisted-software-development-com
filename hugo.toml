@@ -1,4 +1,5 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://ai-assisted-software-development.com/'
 languageCode = 'en-us'
 title = 'AI-Assisted Software Development'
 theme = 'PaperMod'
+contentDir = 'site-content'
