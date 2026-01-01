@@ -1,0 +1,34 @@
+/* Use different backgrounds for light and dark modes */
+
+:root {
+    /* Slightly off-white so code blocks stand out from the page background in light mode */
+    --code-block-bg: #f6f8fa;
+}
+
+:root[data-theme="dark"] {
+    --code-block-bg: #272822;
+}
+
+/* Override any hardcoded backgrounds from Chroma styles */
+.chroma,
+.bg {
+    background-color: var(--code-block-bg) !important;
+}
+
+/* Ensure plain code blocks (no language) have dark readable text in light mode */
+:root .chroma {
+    color: #24292f;
+}
+
+:root[data-theme="dark"] .chroma {
+    color: #f8f8f2;
+}
+
+/* Override PaperMod's light gray code color */
+:root .post-content pre code {
+    color: #24292f !important;
+}
+
+:root[data-theme="dark"] .post-content pre code {
+    color: #f8f8f2 !important;
+}

@@ -4,3 +4,9 @@ title = 'AI-Assisted Software Development'
 capitalizeListTitles = false
 theme = 'PaperMod'
 contentDir = 'site-content'
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+    # style is overridden by assets/css/includes/chroma-styles.css
+    # which provides GitHub (light) and Monokai (dark) styles
