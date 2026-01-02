@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-01-02
+
+### Fixed
+- Remove `publish` from exported `tags:` lists so it does not appear as a public tag on the site.
+
 ## [0.1.5] - 2026-01-02
 
 ### Fixed
@@ -49,7 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGENTS.md guide for AI agent collaboration
 - CHANGELOG.md following Keep a Changelog format
 
-[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.2...v0.1.3

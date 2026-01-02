@@ -102,6 +102,7 @@ def _remove_publish_tag(text: str) -> str:
                 if after.strip():
                     out.insert(len(out), f"{after}\n")
                 continue
+            continue
 
         if inside_tags_block:
             m = TAG_DASH_LINE.match(line)
