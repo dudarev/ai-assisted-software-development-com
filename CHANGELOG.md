@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-01-02
+
+### Added
+- Copy `content/media/` to `static/media/` during export so attachments can be served at `/media/`.
+
+### Fixed
+- Convert Obsidian image wikilinks like `![[image.png]]` to Markdown image links so images render on the site.
+
+### Changed
+- Ignore generated `static/media/` output.
+
 ## [0.1.6] - 2026-01-02
 
 ### Fixed
@@ -54,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGENTS.md guide for AI agent collaboration
 - CHANGELOG.md following Keep a Changelog format
 
-[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.3...v0.1.4

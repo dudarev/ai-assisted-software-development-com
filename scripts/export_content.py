@@ -6,6 +6,7 @@ import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -170,6 +171,22 @@ def _transform_wikilinks(text: str) -> str:
     return re.sub(pattern, replace_wikilink, text)
 
 
+def _transform_image_wikilinks(text: str) -> str:
+    """Convert Obsidian image wikilinks ![[image.ext]] to standard Markdown ![](path/to/image.ext)."""
+    # Match ![[filename.ext]] or ![[filename.ext|alt]] patterns.
+    pattern = r"!\[\[([^\]|]+?\.(?:svg|png|jpg|jpeg|gif|webp|pdf))(?:\|[^\]]*)?\]\]"
+
+    def replace_image(match: re.Match[str]) -> str:
+        filename = match.group(1).strip()
+        if filename.startswith(("media/", "media\\")):
+            filename = filename.split("/", 1)[1] if "/" in filename else filename.split("\\", 1)[1]
+
+        encoded_filename = quote(filename, safe="/")
+        return f"![{filename}](/media/{encoded_filename})"
+
+    return re.sub(pattern, replace_image, text, flags=re.IGNORECASE)
+
+
 def _escape_yaml_double_quoted(text: str) -> str:
     return text.replace("\\", "\\\\").replace('"', "\\\"")
 
@@ -236,6 +253,28 @@ def _normalize_title_and_strip_leading_h1(text: str) -> str:
     return "".join(lines)
 
 
+def copy_media_files(source_root: Path, static_dir: Path) -> None:
+    """Copy media files from content/media to static/media for Hugo serving."""
+    media_source = source_root / "media"
+    media_dest = static_dir / "media"
+    
+    if not media_source.exists():
+        return
+    
+    # Clean and recreate media destination
+    if media_dest.exists():
+        shutil.rmtree(media_dest)
+    media_dest.mkdir(parents=True, exist_ok=True)
+    
+    # Copy all media files
+    for media_file in media_source.rglob("*"):
+        if media_file.is_file():
+            rel_path = media_file.relative_to(media_source)
+            dest_file = media_dest / rel_path
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(media_file, dest_file)
+
+
 def export_published(source_dir: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -265,10 +304,11 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
         out_path = output_dir / out_rel
         out_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Transform the content: remove publish tag, fix .md links, and convert wikilinks
+        # Transform the content: remove publish tag, fix .md links, convert wikilinks and images
         transformed = _remove_publish_tag(raw)
         transformed = _normalize_title_and_strip_leading_h1(transformed)
         transformed = _transform_md_links(transformed)
+        transformed = _transform_image_wikilinks(transformed)
         transformed = _transform_wikilinks(transformed)
         
         out_path.write_text(transformed, encoding="utf-8")
@@ -277,6 +317,8 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
 def main() -> None:
     source = ROOT / "content" / "notes"
     output = ROOT / "site-content"
+    content_root = ROOT / "content"
+    static_dir = ROOT / "static"
 
     if not source.exists():
         raise SystemExit(f"Missing source: {source} (did you init submodules?)")
@@ -285,6 +327,7 @@ def main() -> None:
         shutil.rmtree(output)
 
     export_published(source, output)
+    copy_media_files(content_root, static_dir)
 
 
 if __name__ == "__main__":
