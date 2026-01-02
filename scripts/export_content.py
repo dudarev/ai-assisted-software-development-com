@@ -58,7 +58,9 @@ def _frontmatter_has_publish_tag(fm_lines: list[str]) -> bool:
         if inside_tags_block:
             m = TAG_DASH_LINE.match(line)
             if m:
-                return m.group(1).strip().strip("'\"").lower() == "publish"
+                if m.group(1).strip().strip("'\"").lower() == "publish":
+                    return True
+                continue
             if stripped and not line.startswith((" ", "\t")):
                 inside_tags_block = False
     return False

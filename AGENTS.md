@@ -47,9 +47,11 @@ When maintaining the changelog (`CHANGELOG.md`):
 - use clear, human-readable language
 - group changes by type: Added, Changed, Deprecated, Removed, Fixed, Security
 - maintain an Unreleased section for upcoming changes
+- proactively add an entry when fixing a production-visible issue (e.g. a broken route/404) or changing the publishing workflow
 - use ISO date format (YYYY-MM-DD) for release dates
 - record breaking changes explicitly
-- when cutting a release in `CHANGELOG.md`, create and push a matching git tag (e.g. `v0.1.2`) so the compare links at the bottom of the changelog resolve correctly
+- this site deploys from `main` on Cloudflare Pages; tags are optional and do not affect deployment
+- if you cut a release in `CHANGELOG.md`, consider creating/pushing a matching git tag (e.g. `v0.1.2`) so the compare links at the bottom of the changelog resolve correctly
 
 ## Authority model
 
