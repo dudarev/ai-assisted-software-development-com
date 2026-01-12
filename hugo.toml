@@ -5,6 +5,22 @@ capitalizeListTitles = false
 theme = 'PaperMod'
 contentDir = 'site-content'
 
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+
+[menu]
+  [[menu.main]]
+    name = 'Search'
+    url = '/search/'
+    weight = 10
+  [[menu.main]]
+    name = 'Tags'
+    url = '/tags/'
+    weight = 20
+
+[params]
+  fuseOpts = { threshold = 0.2, minMatchCharLength = 3, distance = 50, keys = ['title', 'summary', 'content'] }
+
 [markup]
   [markup.highlight]
     noClasses = false

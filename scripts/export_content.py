@@ -314,6 +314,12 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
         out_path.write_text(transformed, encoding="utf-8")
 
 
+def write_search_page(output_dir: Path) -> None:
+    search_path = output_dir / "search.md"
+    content = "---\n" + 'title: "Search"\n' + 'layout: "search"\n' + "---\n"
+    search_path.write_text(content, encoding="utf-8")
+
+
 def main() -> None:
     source = ROOT / "content" / "notes"
     output = ROOT / "site-content"
@@ -327,6 +333,7 @@ def main() -> None:
         shutil.rmtree(output)
 
     export_published(source, output)
+    write_search_page(output)
     copy_media_files(content_root, static_dir)
 
 

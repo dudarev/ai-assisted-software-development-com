@@ -27,7 +27,7 @@ Search is currently not enabled, so visitors cannot quickly find content by keyw
 - `/search` renders the PaperMod search UI.
 - Search results include title, summary/snippet, and permalink.
 - Index excludes search/archives pages (as PaperMod's `index.json` already does).
-- Default Fuse options are used.
+- Fuse options are tuned to reduce fuzzy matches while still matching acronyms in content.
 - Top navigation includes `Search` and `Tags` links.
 
 ### Non-functional
@@ -38,7 +38,7 @@ Search is currently not enabled, so visitors cannot quickly find content by keyw
 - Config:
   - Update `hugo.toml` to enable JSON output for the home page (`home = ["HTML", "RSS", "JSON"]`).
   - Add menu entries that link to `/search` and `/tags`.
-  - Keep default Fuse options.
+  - Tune Fuse options to be stricter for short queries.
 - Content generation:
   - Add a generated search page (e.g., `site-content/search.md`) during `scripts/export_content.py`.
   - This avoids modifying the `content/` submodule and keeps `/search` in the build output.
