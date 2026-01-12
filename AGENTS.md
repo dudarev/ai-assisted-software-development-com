@@ -27,6 +27,13 @@ When creating or modifying content:
 - prefer incremental evolution over rewrites
 - respect existing terminology and structure
 
+Spec-driven development (SDD):
+- for non-trivial features, draft a PRD in `docs/prds/` and a spec in `docs/specs/` before implementation
+- use lowercase file names with a numeric prefix (e.g., `001-fuse-search.md`)
+- cross-link PRD and spec in each document
+- record changelog/versioning expectations in the spec
+- implement only what the spec covers unless asked to expand scope
+
 When changing site setup:
 - do not commit generated output (`public/`)
 - treat `content/` and `themes/` as submodules
