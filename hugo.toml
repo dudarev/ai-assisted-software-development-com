@@ -17,6 +17,10 @@ contentDir = 'site-content'
     name = 'Tags'
     url = '/tags/'
     weight = 20
+  [[menu.main]]
+    name = 'Weekly'
+    url = '/weekly/'
+    weight = 30
 
 [params]
   fuseOpts = { threshold = 0.2, minMatchCharLength = 3, distance = 50, keys = ['title', 'summary', 'content'] }

@@ -20,6 +20,7 @@ TITLE_LINE = re.compile(r"^(\s*)title\s*:\s*(.*?)\s*$", re.IGNORECASE)
 class Frontmatter:
     raw_lines: list[str]
     has_publish: bool
+    tags: set[str]
 
 
 def _parse_frontmatter(text: str) -> Frontmatter | None:
@@ -36,13 +37,13 @@ def _parse_frontmatter(text: str) -> Frontmatter | None:
         return None
 
     fm_lines = lines[1:end_index]
-    has_publish = any(PUBLISH_LINE.match(line) for line in fm_lines) or _frontmatter_has_publish_tag(
-        fm_lines
-    )
-    return Frontmatter(raw_lines=fm_lines, has_publish=has_publish)
+    tags = _extract_tags(fm_lines)
+    has_publish = any(PUBLISH_LINE.match(line) for line in fm_lines) or "publish" in tags
+    return Frontmatter(raw_lines=fm_lines, has_publish=has_publish, tags=tags)
 
 
-def _frontmatter_has_publish_tag(fm_lines: list[str]) -> bool:
+def _extract_tags(fm_lines: list[str]) -> set[str]:
+    tags: set[str] = set()
     inside_tags_block = False
     for line in fm_lines:
         stripped = line.strip()
@@ -50,21 +51,25 @@ def _frontmatter_has_publish_tag(fm_lines: list[str]) -> bool:
             inside_tags_block = True
             value = stripped[len("tags:") :].strip()
             if value.startswith("[") and value.endswith("]"):
-                items = [x.strip().strip("'\"") for x in value[1:-1].split(",") if x.strip()]
-                return any(item.lower() == "publish" for item in items)
-            if value:
-                return any(x.strip().strip("'\"").lower() == "publish" for x in value.split(","))
+                items = [x.strip().strip("'\"").lower() for x in value[1:-1].split(",") if x.strip()]
+                tags.update(items)
+            elif value:
+                items = [x.strip().strip("'\"").lower() for x in value.split(",") if x.strip()]
+                tags.update(items)
             continue
 
         if inside_tags_block:
             m = TAG_DASH_LINE.match(line)
             if m:
-                if m.group(1).strip().strip("'\"").lower() == "publish":
-                    return True
+                tags.add(m.group(1).strip().strip("'\"").lower())
                 continue
             if stripped and not line.startswith((" ", "\t")):
                 inside_tags_block = False
-    return False
+    return tags
+
+
+def _frontmatter_has_publish_tag(fm_lines: list[str]) -> bool:
+    return "publish" in _extract_tags(fm_lines)
 
 
 def _remove_publish_tag(text: str) -> str:
@@ -296,7 +301,9 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
             slugified_name = _slugify(filename_stem) + ".md"
         
         # Reconstruct output path with slugified filename
-        if rel.parent == Path("."):
+        if "weekly" in fm.tags:
+            out_rel = Path("weekly") / slugified_name
+        elif rel.parent == Path("."):
             out_rel = Path(slugified_name)
         else:
             out_rel = rel.parent / slugified_name
@@ -320,6 +327,14 @@ def write_search_page(output_dir: Path) -> None:
     search_path.write_text(content, encoding="utf-8")
 
 
+def write_weekly_index(output_dir: Path) -> None:
+    weekly_dir = output_dir / "weekly"
+    weekly_dir.mkdir(parents=True, exist_ok=True)
+    index_path = weekly_dir / "_index.md"
+    content = "---\n" + 'title: "Weekly YouTube Picks"\n' + 'layout: "list"\n' + "---\n"
+    index_path.write_text(content, encoding="utf-8")
+
+
 def main() -> None:
     source = ROOT / "content" / "notes"
     output = ROOT / "site-content"
@@ -334,6 +349,7 @@ def main() -> None:
 
     export_published(source, output)
     write_search_page(output)
+    write_weekly_index(output)
     copy_media_files(content_root, static_dir)
 
 
