@@ -24,6 +24,7 @@ contentDir = 'site-content'
 
 [params]
   fuseOpts = { threshold = 0.2, minMatchCharLength = 3, distance = 50, keys = ['title', 'summary', 'content'] }
+  disableSpecial1stPost = true
 
 [markup]
   [markup.highlight]

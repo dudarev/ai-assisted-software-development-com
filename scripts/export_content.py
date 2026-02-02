@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import shutil
 from dataclasses import dataclass
+from datetime import date, datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
@@ -14,6 +15,8 @@ FRONTMATTER_BOUNDARY = re.compile(r"^---\s*$")
 TAG_DASH_LINE = re.compile(r"^\s*-\s*(.+?)\s*$")
 PUBLISH_LINE = re.compile(r"^\s*publish:\s*true\s*$", re.IGNORECASE)
 TITLE_LINE = re.compile(r"^(\s*)title\s*:\s*(.*?)\s*$", re.IGNORECASE)
+DATE_LINE = re.compile(r"^\s*date\s*:\s*.+$", re.IGNORECASE)
+WEEK_PATTERN = re.compile(r"(20\d{2})-W(\d{2})")
 
 
 @dataclass(frozen=True)
@@ -258,6 +261,55 @@ def _normalize_title_and_strip_leading_h1(text: str) -> str:
     return "".join(lines)
 
 
+def _infer_weekly_date(text: str) -> date | None:
+    match = WEEK_PATTERN.search(text)
+    if not match:
+        return None
+    year = int(match.group(1))
+    week = int(match.group(2))
+    try:
+        sunday = date.fromisocalendar(year, week, 7)
+    except ValueError:
+        return None
+    return sunday
+
+
+def _utc_today() -> date:
+    return datetime.now(timezone.utc).date()
+
+
+def _clamp_future_date(value: date) -> date:
+    today = _utc_today()
+    return today if value > today else value
+
+
+def _ensure_frontmatter_date(text: str, date_value: date) -> str:
+    lines = text.splitlines(keepends=True)
+    if not lines or not FRONTMATTER_BOUNDARY.match(lines[0]):
+        return text
+
+    end_index = None
+    for idx in range(1, len(lines)):
+        if FRONTMATTER_BOUNDARY.match(lines[idx].strip()):
+            end_index = idx
+            break
+    if end_index is None:
+        return text
+
+    for idx in range(1, end_index):
+        if DATE_LINE.match(lines[idx]):
+            return text
+
+    insert_at = 1
+    for idx in range(1, end_index):
+        if TITLE_LINE.match(lines[idx]):
+            insert_at = idx + 1
+            break
+
+    lines.insert(insert_at, f"date: {date_value.isoformat()}\n")
+    return "".join(lines)
+
+
 def copy_media_files(source_root: Path, static_dir: Path) -> None:
     """Copy media files from content/media to static/media for Hugo serving."""
     media_source = source_root / "media"
@@ -318,6 +370,12 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
         transformed = _transform_image_wikilinks(transformed)
         transformed = _transform_wikilinks(transformed)
         
+        if "weekly" in fm.tags:
+            weekly_date = _infer_weekly_date(path.stem) or _infer_weekly_date(raw)
+            if weekly_date:
+                safe_date = _clamp_future_date(weekly_date)
+                transformed = _ensure_frontmatter_date(transformed, safe_date)
+
         out_path.write_text(transformed, encoding="utf-8")
 
 
