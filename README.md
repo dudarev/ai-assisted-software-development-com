@@ -65,3 +65,14 @@ When content changes, the `content` submodule pointer is updated automatically v
 During the Cloudflare build, `scripts/build.sh` exports only pages tagged `publish` from `content/notes/` into `site-content/`, then runs Hugo.
 
 If needed, run the workflow manually via the Actions tab (“Update content submodule”).
+
+### Manual submodule update (fallback)
+
+If the Actions-based sync is broken, update the submodule pointer locally and push a commit:
+
+```sh
+git submodule update --remote --merge content
+git add content
+git commit -m "Update content submodule"
+git push
+```
