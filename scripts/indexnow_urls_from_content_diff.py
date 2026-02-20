@@ -165,8 +165,17 @@ def main(argv: list[str]) -> int:
     content_dir = Path(args.content_dir)
     notes_dir = args.notes_dir.strip("/").rstrip("/")
     base_url = args.base_url or f"https://{args.host}"
+    old_sha = args.old_sha.strip()
+    new_sha = args.new_sha.strip()
 
-    changed_pairs = _iter_changed_note_paths(content_dir, args.old_sha, args.new_sha, notes_dir)
+    if not old_sha or not new_sha:
+        print("Missing old/new content SHA; no URLs emitted.", file=sys.stderr)
+        return 0
+    if old_sha == new_sha:
+        print("Content SHA unchanged; no URLs emitted.", file=sys.stderr)
+        return 0
+
+    changed_pairs = _iter_changed_note_paths(content_dir, old_sha, new_sha, notes_dir)
 
     urls: set[str] = set()
     tags: set[str] = set()
@@ -188,9 +197,9 @@ def main(argv: list[str]) -> int:
 
     for old_path, new_path in changed_pairs:
         if old_path:
-            add_from_version(args.old_sha, old_path)
+            add_from_version(old_sha, old_path)
         if new_path:
-            add_from_version(args.new_sha, new_path)
+            add_from_version(new_sha, new_path)
 
     if args.include_taxonomies and tags:
         urls.add(f"{base_url.rstrip('/')}/tags/")
@@ -212,4 +221,3 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-
