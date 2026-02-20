@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-02-20
+
 ### Added
 - Host IndexNow key file at the site root and submit URL changes to IndexNow on pushes to `main`.
 
@@ -79,7 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGENTS.md guide for AI agent collaboration
 - CHANGELOG.md following Keep a Changelog format
 
-[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.7...v0.2.0
 [0.1.7]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.5...v0.1.6
