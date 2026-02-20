@@ -169,7 +169,9 @@ def submit_indexnow_batch(
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Submit sitemap URL changes to IndexNow.")
-    parser.add_argument("--sitemap", required=True, help="Sitemap URL or local path (sitemap.xml)")
+    parser.add_argument("--sitemap", default=None, help="Sitemap URL or local path (sitemap.xml)")
+    parser.add_argument("--url", action="append", default=[], help="Explicit URL to submit (repeatable)")
+    parser.add_argument("--urls-file", default=None, help="Newline-separated URLs to submit")
     parser.add_argument("--host", required=True, help="Host name to submit (e.g. ai-assisted-software-development.com)")
     parser.add_argument("--key", required=True, help="IndexNow key")
     parser.add_argument("--key-location", default=None, help="Key file URL (default: https://<host>/<key>.txt)")
@@ -182,6 +184,34 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
 
     key_location = args.key_location or f"https://{args.host}/{args.key}.txt"
+
+    explicit_urls: set[str] = set(args.url or [])
+    if args.urls_file:
+        url_lines = Path(args.urls_file).read_text(encoding="utf-8").splitlines()
+        explicit_urls.update(line.strip() for line in url_lines if line.strip() and not line.strip().startswith("#"))
+
+    if explicit_urls:
+        urls = sorted({u for u in explicit_urls if urlsplit(u).hostname and urlsplit(u).hostname.lower() == args.host.lower()})
+        print(f"Host: {args.host}")
+        print(f"Explicit URLs to submit: {len(urls)}")
+        if not urls:
+            return 0
+        rc = 0
+        for i in range(0, len(urls), args.batch_size):
+            batch = urls[i : i + args.batch_size]
+            batch_rc = submit_indexnow_batch(
+                endpoint=args.endpoint,
+                host=args.host,
+                key=args.key,
+                key_location=key_location,
+                urls=batch,
+                dry_run=args.dry_run,
+            )
+            rc = max(rc, batch_rc)
+        return rc
+
+    if not args.sitemap:
+        raise SystemExit("Must provide --sitemap or --url/--urls-file")
 
     entries = load_sitemap_entries(args.sitemap)
     current = normalize_entries(entries, host=args.host)

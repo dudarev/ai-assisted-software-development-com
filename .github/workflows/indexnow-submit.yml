@@ -6,13 +6,6 @@ on:
     paths:
       - ".gitmodules"
       - "content"
-      - "hugo.toml"
-      - "layouts/**"
-      - "static/**"
-      - "assets/**"
-      - "data/**"
-      - "i18n/**"
-      - "themes/**"
       - "scripts/**"
   workflow_dispatch: {}
 
@@ -29,8 +22,7 @@ jobs:
     env:
       INDEXNOW_HOST: ai-assisted-software-development.com
       INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY || '75c966e4569e4fa8b33c7594f417b771' }}
-      INDEXNOW_SNAPSHOT: .indexnow/sitemap_snapshot.json
-      INDEXNOW_SITEMAP_PATH: public/sitemap.xml
+      INDEXNOW_BASE_URL: https://ai-assisted-software-development.com
 
     steps:
       - name: Checkout
@@ -43,39 +35,54 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Set up Hugo
-        uses: peaceiris/actions-hugo@v3
-        with:
-          hugo-version: "0.147.8"
-          extended: true
-
-      - name: Restore previous sitemap snapshot
-        id: cache-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.INDEXNOW_SNAPSHOT }}
-          key: indexnow-sitemap-${{ github.ref_name }}-${{ github.sha }}
-          restore-keys: |
-            indexnow-sitemap-${{ github.ref_name }}-
-
-      - name: Build sitemap
+      - name: Export published content
         run: |
           python3 scripts/export_content.py
-          hugo --minify
 
-      - name: Submit IndexNow URL changes
+      - name: Compute content submodule SHAs
+        id: content-shas
+        if: github.event_name == 'push'
+        run: |
+          old="$(git ls-tree "${{ github.event.before }}" content | awk '{print $3}')"
+          new="$(git ls-tree "${{ github.sha }}" content | awk '{print $3}')"
+          echo "old=$old" >> "$GITHUB_OUTPUT"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure content SHAs are available
+        if: github.event_name == 'push'
+        run: |
+          git -C content fetch --no-tags --prune origin "${{ steps.content-shas.outputs.old }}" "${{ steps.content-shas.outputs.new }}" || true
+
+      - name: Compute URLs changed in this push
+        if: github.event_name == 'push'
+        run: |
+          python3 scripts/indexnow_urls_from_content_diff.py \
+            --content-dir content \
+            --notes-dir notes \
+            --old-sha "${{ steps.content-shas.outputs.old }}" \
+            --new-sha "${{ steps.content-shas.outputs.new }}" \
+            --host "${INDEXNOW_HOST}" \
+            --base-url "${INDEXNOW_BASE_URL}" \
+            --include-taxonomies \
+            > /tmp/indexnow_urls.txt
+          wc -l /tmp/indexnow_urls.txt || true
+
+      - name: Submit IndexNow URLs
         id: indexnow
         run: |
-          python3 scripts/indexnow_submit.py \
-            --sitemap "${INDEXNOW_SITEMAP_PATH}" \
-            --host "${INDEXNOW_HOST}" \
-            --key "${INDEXNOW_KEY}" \
-            --snapshot-in "${INDEXNOW_SNAPSHOT}" \
-            --snapshot-out "${INDEXNOW_SNAPSHOT}"
-
-      - name: Save current sitemap snapshot
-        if: steps.indexnow.outcome == 'success'
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ env.INDEXNOW_SNAPSHOT }}
-          key: indexnow-sitemap-${{ github.ref_name }}-${{ github.sha }}
+          if [ "${{ github.event_name }}" = "push" ]; then
+            if [ ! -s /tmp/indexnow_urls.txt ]; then
+              echo "No URLs to submit."
+              exit 0
+            fi
+            python3 scripts/indexnow_submit.py \
+              --urls-file /tmp/indexnow_urls.txt \
+              --host "${INDEXNOW_HOST}" \
+              --key "${INDEXNOW_KEY}"
+          else
+            # Manual run fallback: submit the full sitemap (first run) or only changed lastmod URLs (subsequent runs)
+            python3 scripts/indexnow_submit.py \
+              --sitemap "${INDEXNOW_BASE_URL}/sitemap.xml" \
+              --host "${INDEXNOW_HOST}" \
+              --key "${INDEXNOW_KEY}"
+          fi
