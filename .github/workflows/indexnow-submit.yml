@@ -35,16 +35,16 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Export published content
-        run: |
-          python3 scripts/export_content.py
-
       - name: Compute content submodule SHAs
         id: content-shas
         if: github.event_name == 'push'
         run: |
           old="$(git ls-tree "${{ github.event.before }}" content | awk '{print $3}')"
           new="$(git ls-tree "${{ github.sha }}" content | awk '{print $3}')"
+          if [ -z "$old" ] || [ -z "$new" ]; then
+            echo "Could not determine content SHAs (old='$old', new='$new')."
+            exit 0
+          fi
           echo "old=$old" >> "$GITHUB_OUTPUT"
           echo "new=$new" >> "$GITHUB_OUTPUT"
 
