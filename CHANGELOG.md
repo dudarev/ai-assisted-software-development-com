@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Host IndexNow key file at the site root and submit URL changes to IndexNow on pushes to `main`.
+
 ## [0.2.0] - 2026-01-12
 
 ### Changed

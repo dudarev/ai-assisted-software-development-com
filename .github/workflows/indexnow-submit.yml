@@ -1,0 +1,81 @@
+name: Submit IndexNow URLs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".gitmodules"
+      - "content"
+      - "hugo.toml"
+      - "layouts/**"
+      - "static/**"
+      - "assets/**"
+      - "data/**"
+      - "i18n/**"
+      - "themes/**"
+      - "scripts/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: indexnow-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    env:
+      INDEXNOW_HOST: ai-assisted-software-development.com
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY || '75c966e4569e4fa8b33c7594f417b771' }}
+      INDEXNOW_SNAPSHOT: .indexnow/sitemap_snapshot.json
+      INDEXNOW_SITEMAP_PATH: public/sitemap.xml
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Set up Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "0.147.8"
+          extended: true
+
+      - name: Restore previous sitemap snapshot
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.INDEXNOW_SNAPSHOT }}
+          key: indexnow-sitemap-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            indexnow-sitemap-${{ github.ref_name }}-
+
+      - name: Build sitemap
+        run: |
+          python3 scripts/export_content.py
+          hugo --minify
+
+      - name: Submit IndexNow URL changes
+        id: indexnow
+        run: |
+          python3 scripts/indexnow_submit.py \
+            --sitemap "${INDEXNOW_SITEMAP_PATH}" \
+            --host "${INDEXNOW_HOST}" \
+            --key "${INDEXNOW_KEY}" \
+            --snapshot-in "${INDEXNOW_SNAPSHOT}" \
+            --snapshot-out "${INDEXNOW_SNAPSHOT}"
+
+      - name: Save current sitemap snapshot
+        if: steps.indexnow.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.INDEXNOW_SNAPSHOT }}
+          key: indexnow-sitemap-${{ github.ref_name }}-${{ github.sha }}

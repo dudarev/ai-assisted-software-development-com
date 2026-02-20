@@ -66,6 +66,12 @@ During the Cloudflare build, `scripts/build.sh` exports only pages tagged `publi
 
 If needed, run the workflow manually via the Actions tab (“Update content submodule”).
 
+### IndexNow
+
+This repo hosts an IndexNow key file at the site root (under `static/`), and submits URL changes to IndexNow on pushes to `main` via GitHub Actions (`Submit IndexNow URLs`).
+
+If you rotate the IndexNow key, set a repo secret named `INDEXNOW_KEY` to override the default configured in the workflow.
+
 ### Manual submodule update (fallback)
 
 If the Actions-based sync is broken, update the submodule pointer locally and push a commit:
