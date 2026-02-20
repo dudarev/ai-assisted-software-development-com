@@ -68,7 +68,7 @@ If needed, run the workflow manually via the Actions tab (“Update content subm
 
 ### IndexNow
 
-This repo hosts an IndexNow key file at the site root (under `static/`), and submits URL changes to IndexNow on pushes to `main` via GitHub Actions (`Submit IndexNow URLs`).
+This repo hosts an IndexNow key file at the site root (under `static/`), and submits URL changes to IndexNow after the `Update content submodule` workflow completes from a `content_updated` repository dispatch via GitHub Actions (`Submit IndexNow URLs`).
 
 If you rotate the IndexNow key, set a repo secret named `INDEXNOW_KEY` to override the default configured in the workflow.
 
