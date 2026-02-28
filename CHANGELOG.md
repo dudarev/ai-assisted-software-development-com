@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-02-28
+
 ### Changed
 - Trigger IndexNow submissions from successful `content_updated` dispatch workflow runs instead of `push` events to `main`.
+
+### Fixed
+- Automatically route wikilinks to notes in the people folder to `/people/slug/` URLs, preserving link structure and preventing 404s when linking to person pages.
 
 ## [0.2.1] - 2026-02-20
 
@@ -80,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial Hugo site setup with PaperMod theme
 - Content export script for markdown file management
-- Makefile for build automation
+- Makefile for build automation2...HEAD
+[0.2.2]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.1...v0.2.2
 - AGENTS.md guide for AI agent collaboration
 - CHANGELOG.md following Keep a Changelog format
 

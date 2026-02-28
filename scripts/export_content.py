@@ -136,6 +136,15 @@ def _slugify(text: str) -> str:
     return slug.strip('-')
 
 
+def _build_people_slug_index(source_dir: Path) -> set[str]:
+    """Build a slug index for notes in the people folder."""
+    people_dir = source_dir / "people"
+    if not people_dir.exists():
+        return set()
+
+    return {_slugify(path.stem) for path in people_dir.rglob("*.md")}
+
+
 def _transform_md_links(text: str) -> str:
     """Convert markdown links from .md files to Hugo clean URLs."""
     # Match [text](file.md) or [text](path/file.md) patterns
@@ -161,7 +170,7 @@ def _transform_md_links(text: str) -> str:
     return re.sub(pattern, replace_link, text)
 
 
-def _transform_wikilinks(text: str) -> str:
+def _transform_wikilinks(text: str, people_slugs: set[str]) -> str:
     """Convert Wikilinks [[Page]] or [[page|Display]] to Hugo markdown links."""
     # Match [[target|display]] or [[target]] patterns
     pattern = r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]'
@@ -169,11 +178,21 @@ def _transform_wikilinks(text: str) -> str:
     def replace_wikilink(match):
         target = match.group(1).strip()
         display = match.group(2).strip() if match.group(2) else target
-        
-        # Slugify the target for the URL
-        slug = _slugify(target)
-        
-        # Create Hugo-style link with leading and trailing slashes
+
+        normalized_target = target.replace("\\", "/")
+        target_parts = [part for part in normalized_target.split("/") if part and part != "."]
+        last_part = target_parts[-1] if target_parts else normalized_target
+
+        # Slugify the final path segment for the URL
+        slug = _slugify(last_part)
+        if not slug:
+            return f'[{display}](/)'
+
+        # Keep explicit people path and auto-prefix when target resolves to a people note.
+        if (target_parts and target_parts[0].lower() == "people") or slug in people_slugs:
+            return f'[{display}](/people/{slug}/)'
+
+        # Default Hugo-style link with leading and trailing slashes.
         return f'[{display}](/{slug}/)'
     
     return re.sub(pattern, replace_wikilink, text)
@@ -334,6 +353,7 @@ def copy_media_files(source_root: Path, static_dir: Path) -> None:
 
 def export_published(source_dir: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
+    people_slugs = _build_people_slug_index(source_dir)
 
     for path in sorted(source_dir.rglob("*.md")):
         rel = path.relative_to(source_dir)
@@ -368,7 +388,7 @@ def export_published(source_dir: Path, output_dir: Path) -> None:
         transformed = _normalize_title_and_strip_leading_h1(transformed)
         transformed = _transform_md_links(transformed)
         transformed = _transform_image_wikilinks(transformed)
-        transformed = _transform_wikilinks(transformed)
+        transformed = _transform_wikilinks(transformed, people_slugs)
         
         if "weekly" in fm.tags:
             weekly_date = _infer_weekly_date(path.stem) or _infer_weekly_date(raw)
