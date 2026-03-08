@@ -1,0 +1,17 @@
+{{- if not (.Param "hideLLMReadMore") }}
+{{- $pageURL := .Permalink }}
+{{- $prompt := printf "Read from %s so I can ask questions about it." $pageURL }}
+{{- $chatGPTURL := printf "https://chatgpt.com/?%s" (querify "hints" "search" "q" $prompt) }}
+{{- $claudeURL := printf "https://claude.ai/new?%s" (querify "q" $prompt) }}
+<section class="llm-read-more" aria-labelledby="llm-read-more-title">
+  <h2 class="llm-read-more-title" id="llm-read-more-title">Ask AI about this page</h2>
+  <div class="llm-read-more-actions">
+    <a class="llm-read-more-button" href="{{ $chatGPTURL }}" target="_blank" rel="noopener noreferrer">
+      ChatGPT <span aria-hidden="true">↗</span>
+    </a>
+    <a class="llm-read-more-button" href="{{ $claudeURL }}" target="_blank" rel="noopener noreferrer">
+      Claude <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+</section>
+{{- end }}

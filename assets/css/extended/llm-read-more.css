@@ -1,0 +1,37 @@
+.llm-read-more {
+    margin: 2.5rem 0 0;
+}
+
+.llm-read-more-title {
+    margin: 0 0 12px;
+    font-size: 1.5rem;
+}
+
+.llm-read-more-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.llm-read-more-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--code-bg);
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.llm-read-more-button:hover {
+    background: var(--border);
+}
+
+.llm-read-more-button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}

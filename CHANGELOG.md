@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-03-08
+
+### Added
+- Add ChatGPT and Claude buttons to single content pages so readers can open the current article in either model and ask questions about it.
+
 ## [0.2.2] - 2026-02-28
 
 ### Changed
@@ -85,12 +90,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial Hugo site setup with PaperMod theme
 - Content export script for markdown file management
-- Makefile for build automation2...HEAD
-[0.2.2]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.1...v0.2.2
+- Makefile for build automation
 - AGENTS.md guide for AI agent collaboration
 - CHANGELOG.md following Keep a Changelog format
 
-[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.7...v0.2.0
 [0.1.7]: https://github.com/dudarev/ai-assisted-software-development-com/compare/v0.1.6...v0.1.7
